@@ -91,11 +91,50 @@ public class GeneralTree {
 
     }
 
+    public Node containSubtree(Node parent, Character element) {
+        int size = parent.getSubtreesSize();
+
+        for(int i = 0;  i < size ; i++){
+            if(parent.getSubtree(i).element.equals(element)){
+                return parent.getSubtree(i);
+            }
+        }
+
+        return null;
+    }
+
+    public Node addWithFather(Character elem, Node father) {
+        Node aux = new Node(elem);
+
+        father.addSubtree(aux);
+        aux.father = father;
+         count++;
+        return aux;
+    }
+
+
     public void addWord(Character[] values) {
-        Character aux = this.root.element;
+        Node aux = this.root;
+        Node newAux;
+
+        System.out.println(aux);
+       
+
         for (Character ch : values) {
-            this.add(ch, aux);
-            aux = ch;
+            Node contains = containSubtree(aux, ch);
+            
+           
+            if(contains != null){
+                
+                newAux = contains;
+            }
+            else{
+                Node target = this.addWithFather(ch, aux);
+                System.out.println(aux == target);
+                newAux = target;
+            }
+
+            aux = newAux;
         }
     }
 
