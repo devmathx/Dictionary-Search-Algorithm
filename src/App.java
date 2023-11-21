@@ -2,9 +2,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class App {
-  static Scanner kb = new Scanner(System.in);
 
-  public static void main(String[] args) {
+  private static Scanner kb = new Scanner(System.in);
+
+  /**
+   * Inicia o sistema de busca em dicionário.
+   */
+  public static void execute() {
     System.out.println("----- Dicionário -----");
 
     String text, word, context = "";
@@ -31,7 +35,11 @@ public class App {
     System.out.println("Significado de " + word + ": " + context);
   }
 
-
+  /**
+   * Pega uma entrada de texto pelo terminal.
+   * @param question Questão refente ao que está sendo requsitado
+   * @return Resposta
+   */
   private static String input(String question) {
     System.out.print(">> " + question);
     String text = kb.nextLine();
@@ -39,7 +47,11 @@ public class App {
     return text;
   }
 
-
+  /**
+   * Busca palavras relacionadas com o que foi digitado.
+   * @param query Texto pesquisado
+   * @return Lista de palavras que contem o trecho  
+   */
   private static ArrayList<String> search(String query) {
     ArrayList<String> words = new ArrayList<>();
 
@@ -53,7 +65,12 @@ public class App {
     return words;
   }
 
-
+  /**
+   * Exibe no terminal as palavras correspondentes para o ususário escolher.
+   * @param query Texto pesquisado
+   * @param words Lista de palavras
+   * @return A palavra selecionada
+   */
   private static String chooseWord(String query, ArrayList<String> words) {
     System.out.println("\nResultados para '" + query + "':");
 
@@ -73,7 +90,11 @@ public class App {
     return selectedWord;
   }
 
-
+  /**
+   * Pega o signicado de uma palavra.
+   * @param word Palavra para verificar
+   * @return Signicado, ou {@code null} se a palavra não possuir
+   */
   private static String getContext(String word) {
     String[] contexts = Dictionary.findContexts(word);
 

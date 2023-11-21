@@ -20,6 +20,7 @@ public class Dictionary {
 
     for (Palavra line : lines) {
       String w = line.getPalavra();
+      
       if (w.equals(word)) {
         String contextString = line.getSignificado();
         contextString = contextString.replace(".", "");
