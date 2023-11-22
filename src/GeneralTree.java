@@ -2,15 +2,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+
 public class GeneralTree {
+
 
     // Classe interna Node
     private class Node {
         // Atributos da classe Node
-        public Node father;
-        public Character element;
-        public LinkedList<Node> subtrees;
-        public String context;
+        private Node father;
+        private Character element;
+        private LinkedList<Node> subtrees;
+        private String context;
+
 
         // Métodos da classe Node
         public Node(Character element) {
@@ -35,64 +38,55 @@ public class GeneralTree {
         public int getSubtreesSize() {
             return subtrees.size();
         }
+
+
+        public String getContext(){
+            return this.context;
+        }
     }
 
-    
-    
+
+   
+   
     // Atributos da classe GeneralTreeOfInteger
     private Node root;
     private int count = 0;
-    
-    // Metodos da classe GeneralTreeOfInteger
-    
+   
+   
     /**
      * Metodo construtor.
      */
     public GeneralTree() {
         root = null;
         count = 0;
+        this.setRoot('-'); //root da classe é -, representa o inico da árvore
     }
-    
+   
+   
     /**
-     * Retorna o numero total de elementos da arvore.
-     * @return count
+     * Metodo para setar o root
+     * @param element novo valor de root
      */
-    public int size() {
-        return count;
-    }
-
     public void setRoot(Character element) {
         Node aux = new Node(element);
         this.root = aux;
     }
 
-    public void addUnique(Character value) {
-        this.addUnique(this.root, value);
-    }
 
-  
-    public void addUnique(Node parent, Character value) {
-        Node aux = new Node(value);
 
-        if (parent.subtrees.size() == 0) {
-            this.add(value, parent.element);
-            return;
-        }
 
-        for (Node n : parent.subtrees) {
-            if (n.equals(aux)) {
-                this.addUnique(n, value);
-                return;
-            } else {
-                this.add(value, parent.element);
-                return;
-            }
-        }
 
-    }
 
+    /**
+     * Mverifica se o nodo contem um filho com determinado valor,
+     * se possui, irá retornar ele, senão retorna null
+     * (o Método não verifica os filhos dos filhos...)
+     * @param element elemendo a ser usado para busca
+     * @param parente nodo em que procuramos o filhos
+     */
     public Node containSubtree(Node parent, Character element) {
         int size = parent.getSubtreesSize();
+
 
         for(int i = 0;  i < size ; i++){
             if(parent.getSubtree(i).element.equals(element)){
@@ -100,11 +94,24 @@ public class GeneralTree {
             }
         }
 
+
         return null;
     }
 
+
+
+
+
+
+    /**
+     * Adiciona um  nodo como subarvore de father
+     * retorna o próprio nodo
+     * @param elem elemento do novo nodo
+     * @param father elemento pai que vai receber o novo nodo na subarvore
+     */
     public Node addWithFather(Character elem, Node father) {
         Node aux = new Node(elem);
+
 
         father.addSubtree(aux);
         aux.father = father;
@@ -113,32 +120,94 @@ public class GeneralTree {
     }
 
 
-    public void addWord(Character[] values) {
+
+
+
+
+    /**
+     * Adiciona palavras na árvore
+     * a partir do root adicionamos os caracteres como nodos filhos um do outro
+     * se existe um nodo filho no pai com o mesmo valor a ser adicinado, pulamos ele e vamos para o próximo, e dessa vez o pai faz diferença a esse nodo que já existe
+     * @param values[] um array de caracteres da palavra
+     */
+    public void addWord(Palavra word)
+    {
         Node aux = this.root;
+        char[] ch = word.getPalavra().toCharArray();
         Node newAux;
 
-        System.out.println(aux);
-       
 
-        for (Character ch : values) {
-            Node contains = containSubtree(aux, ch);
-            
-           
+        for (int i = 0 ; i < ch.length; i++) {
+            Node contains = containSubtree(aux, ch[i]);
             if(contains != null){
-                
                 newAux = contains;
             }
             else{
-                Node target = this.addWithFather(ch, aux);
-                System.out.println(aux == target);
+                Node target = this.addWithFather(ch[i], aux);
                 newAux = target;
             }
 
+
             aux = newAux;
+            if((i +1) == ch.length) {
+                aux.context = word.getSignificado();
+            }
+           
+        }
+    }
+   
+    public LinkedList<Palavra> getWords(String word){
+        char[] values = word.toCharArray();
+        return getWords(root, values, 0, word);
+    }
+
+
+    private LinkedList<Palavra> getWords(Node startNode, char[] values, int index, String word){
+        LinkedList<Palavra> result = new LinkedList<>();
+       
+        if(index == values.length){
+            traverseWords(startNode, word, result);
+        }
+        else{
+            Node nextNode = containSubtree(startNode, values[index]);
+
+
+            if(nextNode != null){
+                result = getWords(nextNode, values, (index + 1) , word);
+            }
+        }
+       
+        return result;
+    }
+
+
+    private void traverseWords(Node currentNode, String currentWord, LinkedList<Palavra> result) {
+        currentWord += currentNode.element;
+
+
+        if (currentNode.context != null) {
+            // Se o nó atual representa uma palavra, adiciona à lista de resultados
+            result.add(new Palavra(currentWord, currentNode.context));
+         
+        }
+
+
+        for (int i = 0; i < currentNode.getSubtreesSize(); i++) {
+            traverseWords(currentNode.getSubtree(i), currentWord, result);
         }
     }
 
-    
+
+
+
+    private boolean hasChildren(Node node) {
+        return node.getSubtreesSize() > 0;
+    }
+
+
+
+
+   
     // Procura por "elem" a partir de "n" seguindo um
     // caminhamento pre-fixado. Retorna a referencia
     // para o nodo no qual "elem" esta armazenado.
@@ -146,42 +215,40 @@ public class GeneralTree {
     private Node searchNodeRef(Character elem, Node n) {
         if (n == null)
             return null;
-        
-        // Visita a raiz
-        if (elem.equals(n.element)) // se elem esta no nodo recebido por parametro
-            return n; // retorna a referencia para n
-        
-        // Visita os filhos
+       
+        if (elem.equals(n.element))
+            return n;
+   
         Node aux = null;
-        for(int i=0; i<n.getSubtreesSize(); i++) { 
+        for(int i=0; i<n.getSubtreesSize(); i++) {
             aux = searchNodeRef(elem,n.getSubtree(i));
-            if (aux != null) // se achou
-                return aux; // retorna a referencia para o nodo
+            if (aux != null)
+                return aux;
         }
-//        // "Versao" abaixo com foreach
-//        for(Node no : n.subtrees) {
-//            aux = searchNodeRef(elem,no);
-//            if (aux != null) // se achou
-//                return aux; // retorna a referencia para o nodo            
-//        }
         return aux;
     }
-    
-    
+
+
+
+
+
+
+   
+   
+   
     /**
      * Adiciona elem como filho de father
      * @param elem elemento a ser adicionado na arvore.
      * @param father pai do elemento a ser adicionado.
-     * @return true se encontrou father e adicionou elem na arvore, 
+     * @return true se encontrou father e adicionou elem na arvore,
      * false caso contrario.
      */
     public boolean add(Character elem, Character elemFather) {
-        // Primeiro cria o nodo
         Node n = new Node(elem);
-        
-        // Verifica se eh para inserir como raiz
+
+
         if (elemFather == null) {
-            if (root != null) { // se a arvore nao esta vazia
+            if (root != null) {
                 n.addSubtree(root);
                 root.father = n;
             }
@@ -189,149 +256,119 @@ public class GeneralTree {
             count++;
             return true;
         }
-        // Se nao eh para inserir como raiz, procura pelo pai
+
+
         Node aux = searchNodeRef(elemFather,root);
-        if (aux != null) { // se achou elemFather na arvore
-            aux.addSubtree(n); // adiciona como filho
+        if (aux != null) {
+            aux.addSubtree(n);
             n.father = aux;
             count++;
             return true;
         }
         return false;
     }
-    
+   
 
+
+   
     /**
-     * Verifica se elem esta ou não na arvore.
-     * @param elem a ser procurado.
-     * @return true se achar elem, e false caso contrario.
-     */
-    public boolean contains (Integer elem) {
-        // IMPLEMENTE ESTE METODO !!
-        return false;
-    }
-    
-    /**
-     * Retorna uma lista com todos os elementos da árvore numa ordem de 
+     * Retorna uma lista com todos os elementos da árvore numa ordem de
      * caminhamento em largura.
      * @return lista com os elementos da arvore na ordem do caminhamento em largura
      */
     public LinkedList<Character> positionsWidth() {
         LinkedList<Character> lista = new LinkedList<>();
-        
+       
         if (root != null) {
-            // Primeiro cria a fila de nodos
             Queue<Node> fila = new Queue<>();
-            
-            // Coloca a raiz na fila
+           
             fila.enqueue(root);
-            
-            // Laco "enquanto a fila nao estiver vazia
+           
             while (!fila.isEmpty()) {
-                // Retira o nodo da fila
                 Node aux = fila.dequeue();
-                // Coloca o elemento do nodo na lista
                 lista.add(aux.element);
-                // Coloca os filhos na fila
                 for (int i=0; i<aux.getSubtreesSize(); i++) {
                     fila.enqueue(aux.getSubtree(i));
                 }
-//                // "Versao" abaixo com foreach
-//                for (Node no : aux.subtrees) {
-//                    fila.enqueue(no);
-//                }
             }
-            
+           
         }
-        
+       
         return lista;
     }    
-    
+   
+
 
     /**
-     * Retorna uma lista com todos os elementos da árvore numa ordem de 
+     * Retorna uma lista com todos os elementos da árvore numa ordem de
      * caminhamento pre-fixado.
      * @return lista com os elementos da arvore na ordem do caminhamento pre-fixado
      */    
-    public LinkedList<Character> positionsPre() {  
+    public LinkedList<Character> positionsPre(Node n) {  
         LinkedList<Character> lista = new LinkedList<>();
-        positionsPreAux(root,lista);
+        positionsPreAux(n,lista);
         return lista;
     }  
     private void positionsPreAux(Node n, LinkedList<Character> lista) {
         if (n!=null) {
-            // Visita a raiz
             lista.add(n.element);
-            // Visita os filhos
             for(int i=0; i<n.getSubtreesSize(); i++) {
                 positionsPreAux(n.getSubtree(i), lista);
             }            
-        } 
+        }
     }
 
 
+
+
     /**
-     * Retorna uma lista com todos os elementos da árvore numa ordem de 
+     * Retorna uma lista com todos os elementos da árvore numa ordem de
      * caminhamento pos-fixado.
      * @return lista com os elementos da arvore na ordem do caminhamento pos-fixado
-     */     
+     */    
     public LinkedList<Character> positionsPos() {  
         LinkedList<Character> lista = new LinkedList<>();
-        
+       
         positionsPosAux(root,lista);
         return lista;
     }  
-    
+   
     private void positionsPosAux(Node n, LinkedList<Character> lista) {
         if (n!=null) {
-            
-            // Visita os filhos
+           
             for(int i=0; i<n.getSubtreesSize(); i++) {
                 positionsPosAux(n.getSubtree(i), lista);
             }            
 
-            // Visita a raiz
-            lista.add(n.element);
-        } 
-    }    
-    
 
+            lista.add(n.element);
+        }
+    }    
+   
+   
+   
     /**
-     * Retorna em que nivel em que elem esta armazenado. 
-     * @param element a ser buscado
-     * @return nivel no qual element esta, ou -1 se 
-     * nao encontrou element.
-     */
-    public int level(Integer element) {
-        // IMPLEMENTE ESTE METODO !!
-        return 0;
-       
-    }     
-    
-    
-    /**
-     * Remove o galho da arvore que tem element na raiz. A 
+     * Remove o galho da arvore que tem element na raiz. A
      * remocao inclui o nodo que contem "element".
-     * @param element elemento que sera removido junto com sua 
+     * @param element elemento que sera removido junto com sua
      * subarvore.
-     * @return true se achou element e removeu o galho, false 
+     * @return true se achou element e removeu o galho, false
      * caso contrario.
      */
-    public boolean removeBranch(Character element) { 
+    public boolean removeBranch(Character element) {
         if (root == null)
             return false;
-        
-        // Se element estiver na raiz
+       
         if (element.equals(root.element)) {
             root = null;
             count = 0;
             return true;
         }
-        
+       
         Node aux = this.searchNodeRef(element, root);
-        if (aux == null) // se nao encontrou element
+        if (aux == null)
             return false;
-        
+       
         Node pai = aux.father;
         pai.removeSubtree(aux);
         aux.father = null;
@@ -339,74 +376,84 @@ public class GeneralTree {
         return true;
     }
 
-    // Conta o numero de nodos da subarvore cuja raiz eh passada por parametro
+
+
+
     private int countNodes(Node n) {
         if (n == null)
             return 0;
-        
-        int c = 1; // conta 1 deste nodo
-        
-        // soma a quantidade de filhos deste nodo
+       
+        int c = 1;
+       
         for(int i=0; i<n.getSubtreesSize(); i++) {
             c = c + countNodes(n.getSubtree(i));
         }
-        
-        // retorna a quantidade de filhos desta subarvore
+       
         return c;
     }    
-    
-    
+   
+   
     ///////////////////////////////////////////
     // Codigos abaixo geram saida para GraphViz
-    
+   
    private void geraNodosDOT(Node n) {
         System.out.println("node [shape = circle];\n");
 
+
         LinkedList<Character> L = positionsWidth(); // retorna uma lista de elementos (Characters)
         Map<Character, Integer> elementCount = new HashMap<>();
+
 
         for (int i = 0; i < L.size(); i++) {
             char currentElement = L.get(i);
             int count = elementCount.getOrDefault(currentElement, 0) + 1;
             elementCount.put(currentElement, count);
 
+
             // nodeA1 [label = "A"]
             System.out.println("node" + currentElement + count + " [label = \"" + currentElement + "\"]");
         }
     }
+
 
     private void geraConexoesDOT(Node n) {
         Map<String, Integer> connectionCount = new HashMap<>();
         geraConexoesDOTRec(n, connectionCount);
     }
 
+
     private void geraConexoesDOTRec(Node n, Map<String, Integer> connectionCount) {
         for (int i = 0; i < n.getSubtreesSize(); i++) {
             Node aux = n.getSubtree(i);
             String connectionKey = "node" + n.element + " -> " + "node" + aux.element + ";";
 
+
             int count = connectionCount.getOrDefault(connectionKey, 0) + 1;
             connectionCount.put(connectionKey, count);
+
 
             // Adiciona um número à frente do elemento para evitar duplicatas
             System.out.println(connectionKey.replace(";", count + ";"));
 
+
             geraConexoesDOTRec(aux, connectionCount);
         }
     }
-    
+   
     // Gera uma saida no formato DOT
     // Esta saida pode ser visualizada no GraphViz
     // Versoes online do GraphViz pode ser encontradas em
     // http://www.webgraphviz.com/
     // http://viz-js.com/
-    // https://dreampuf.github.io/GraphvizOnline 
+    // https://dreampuf.github.io/GraphvizOnline
     public void geraDOT() {
         if (root != null) {
             System.out.println("digraph g { \n");
             // node [style=filled];
 
+
             geraNodosDOT(root);
+
 
             geraConexoesDOT(root);
             System.out.println("}\n");

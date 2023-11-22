@@ -1,9 +1,12 @@
+import java.util.ArrayList;
+
 public class Main {
   
   public static void main(String[] args) {
-    App.execute();
+    // App.execute();
     // GeneralTree tree = new GeneralTree();
-
+    ArrayList<String> teste = Dictionary.getWords();
+    System.out.println(teste);
     // tree.setRoot('X');
 
     // Character[] chars1 = { 'B', 'A', 'N', 'A', 'N', 'A' };
