@@ -63,7 +63,7 @@ public class Dictionary {
    * Lê o arquivo CSV.
    * @return Uma lista com as linhas do arquivo
    */
-  private static LinkedList<Palavra> readCSV() {
+  public static LinkedList<Palavra> readCSV() {
     LinkedList<Palavra> lista = new LinkedList<>();
     String aux[];
 
