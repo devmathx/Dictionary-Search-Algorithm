@@ -83,6 +83,10 @@ public class Dictionary {
       System.err.format("Erro na leitura do arquivo: ", e);
     }
 
+    String word = lista.get(0).getPalavra();
+    word = word.substring(1);
+    lista.get(0).setPalavra(word);
+
     return lista;
   }
 }
