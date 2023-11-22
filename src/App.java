@@ -29,7 +29,6 @@ public class App {
   private static void menu(){
       String text;
       Palavra word;
-      boolean finalize = false;
 
       System.out.println("\n----- Dicionário -----");
       text = input("Pesquisar: ");
@@ -47,7 +46,7 @@ public class App {
       String verify = input("Deseja pesquisar outra palavra? (0 - NÃO | 1 - SIM)  >> ");
       switch(verify){
         case "1": menu(); break;
-        case "0": return;
+        case "0": break;
         default: System.out.println("Opção inválida...");
       }
 
