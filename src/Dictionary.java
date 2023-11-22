@@ -80,7 +80,8 @@ public class Dictionary {
         line = reader.readLine();
       }
     } catch (IOException e) {
-      System.err.format("Erro na leitura do arquivo: ", e);
+      System.err.format("Erro na leitura do arquivo: ");
+      System.out.println("Adicione o arquivo 'dicionario.csv' na raiz do projeto.");
     }
 
     String word = lista.get(0).getPalavra();
