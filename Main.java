@@ -1,12 +1,18 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Main {
   
   public static void main(String[] args) {
-    // App.execute();
-    // GeneralTree tree = new GeneralTree();
-    ArrayList<String> teste = Dictionary.getWords();
-    System.out.println(teste);
+    
+    
+    
+  
+   
+
+
+     App.execute();
+    
     // tree.setRoot('X');
 
     // Character[] chars1 = { 'B', 'A', 'N', 'A', 'N', 'A' };

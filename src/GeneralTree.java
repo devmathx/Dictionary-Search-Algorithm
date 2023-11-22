@@ -44,14 +44,10 @@ public class GeneralTree {
             return this.context;
         }
     }
-
-
-   
    
     // Atributos da classe GeneralTreeOfInteger
     private Node root;
     private int count = 0;
-   
    
     /**
      * Metodo construtor.
@@ -59,9 +55,7 @@ public class GeneralTree {
     public GeneralTree() {
         root = null;
         count = 0;
-        this.setRoot('-'); //root da classe é -, representa o inico da árvore
     }
-   
    
     /**
      * Metodo para setar o root
@@ -71,11 +65,6 @@ public class GeneralTree {
         Node aux = new Node(element);
         this.root = aux;
     }
-
-
-
-
-
 
     /**
      * Mverifica se o nodo contem um filho com determinado valor,
@@ -94,14 +83,10 @@ public class GeneralTree {
             }
         }
 
-
         return null;
     }
 
-
-
-
-
+   
 
     /**
      * Adiciona um  nodo como subarvore de father
@@ -118,11 +103,6 @@ public class GeneralTree {
          count++;
         return aux;
     }
-
-
-
-
-
 
     /**
      * Adiciona palavras na árvore
@@ -155,22 +135,50 @@ public class GeneralTree {
            
         }
     }
-   
+
+
+    /**
+     * Formata entrada do usuário para ficar compativel com palavras do arquivo
+     * @param palavra palavra a ser formatada
+     */
+    public static String formatWord(String palavra){
+        if (palavra == null || palavra.isEmpty()) {
+          return palavra;  
+        }
+    
+        String primeiraLetraMaiuscula = palavra.substring(0, 1).toUpperCase();
+        String restoDaPalavraMinuscula = palavra.substring(1).toLowerCase();
+    
+        return primeiraLetraMaiuscula + restoDaPalavraMinuscula;
+    }
+    
+
+     /**
+     * Obtém uma lista de palavras que começam com uma determinada sequência.
+     * @param word Sequência de caracteres a ser usada como prefixo para buscar palavras.
+     * @return Lista de palavras que começam com a sequência fornecida.
+     */
     public LinkedList<Palavra> getWords(String word){
+        word = formatWord(word);
         char[] values = word.toCharArray();
         return getWords(root, values, 0, word);
     }
 
-
+    /**
+     * Obtém uma lista de palavras que começam com uma determinada sequência, iniciando a busca a partir de um determinado nó.
+     * @param startNode Nodo a partir do qual a busca deve ser iniciada.
+     * @param values Array de caracteres representando a palavra a ser pesquisada.
+     * @param index Índice que indica a posição atual no array de caracteres.
+     * @param word Prefixo completo a ser pesquisado.
+     * @return Lista de palavras que começam com a sequência fornecida.
+     */
     private LinkedList<Palavra> getWords(Node startNode, char[] values, int index, String word){
         LinkedList<Palavra> result = new LinkedList<>();
-       
         if(index == values.length){
-            traverseWords(startNode, word, result);
+            traverseWords(startNode, word, result, 0);
         }
         else{
             Node nextNode = containSubtree(startNode, values[index]);
-
 
             if(nextNode != null){
                 result = getWords(nextNode, values, (index + 1) , word);
@@ -180,32 +188,30 @@ public class GeneralTree {
         return result;
     }
 
+    /**
+     * Percorre os nodos da árvore Trie para obter palavras que começam com uma determinada sequência.
+     * @param currentNode Nodo atual durante a travessia.
+     * @param currentWord Palavra atual formada durante a travessia.
+     * @param result Lista de palavras resultante.
+     * @param index Índice usado para definir quando alterar a currentWord.
+     */
+    private void traverseWords(Node currentNode, String currentWord, LinkedList<Palavra> result, int index) {
+        if(index  != 0){
+            currentWord += currentNode.element;
+        }
 
-    private void traverseWords(Node currentNode, String currentWord, LinkedList<Palavra> result) {
-        currentWord += currentNode.element;
-
+        index += 1;
 
         if (currentNode.context != null) {
             // Se o nó atual representa uma palavra, adiciona à lista de resultados
             result.add(new Palavra(currentWord, currentNode.context));
-         
         }
 
 
         for (int i = 0; i < currentNode.getSubtreesSize(); i++) {
-            traverseWords(currentNode.getSubtree(i), currentWord, result);
+            traverseWords(currentNode.getSubtree(i), currentWord, result, index);
         }
     }
-
-
-
-
-    private boolean hasChildren(Node node) {
-        return node.getSubtreesSize() > 0;
-    }
-
-
-
 
    
     // Procura por "elem" a partir de "n" seguindo um
@@ -227,14 +233,6 @@ public class GeneralTree {
         }
         return aux;
     }
-
-
-
-
-
-
-   
-   
    
     /**
      * Adiciona elem como filho de father
@@ -268,9 +266,6 @@ public class GeneralTree {
         return false;
     }
    
-
-
-   
     /**
      * Retorna uma lista com todos os elementos da árvore numa ordem de
      * caminhamento em largura.
@@ -296,8 +291,6 @@ public class GeneralTree {
        
         return lista;
     }    
-   
-
 
     /**
      * Retorna uma lista com todos os elementos da árvore numa ordem de
@@ -317,9 +310,6 @@ public class GeneralTree {
             }            
         }
     }
-
-
-
 
     /**
      * Retorna uma lista com todos os elementos da árvore numa ordem de
@@ -344,8 +334,6 @@ public class GeneralTree {
             lista.add(n.element);
         }
     }    
-   
-   
    
     /**
      * Remove o galho da arvore que tem element na raiz. A
@@ -376,9 +364,6 @@ public class GeneralTree {
         return true;
     }
 
-
-
-
     private int countNodes(Node n) {
         if (n == null)
             return 0;
@@ -390,73 +375,5 @@ public class GeneralTree {
         }
        
         return c;
-    }    
-   
-   
-    ///////////////////////////////////////////
-    // Codigos abaixo geram saida para GraphViz
-   
-   private void geraNodosDOT(Node n) {
-        System.out.println("node [shape = circle];\n");
-
-
-        LinkedList<Character> L = positionsWidth(); // retorna uma lista de elementos (Characters)
-        Map<Character, Integer> elementCount = new HashMap<>();
-
-
-        for (int i = 0; i < L.size(); i++) {
-            char currentElement = L.get(i);
-            int count = elementCount.getOrDefault(currentElement, 0) + 1;
-            elementCount.put(currentElement, count);
-
-
-            // nodeA1 [label = "A"]
-            System.out.println("node" + currentElement + count + " [label = \"" + currentElement + "\"]");
-        }
-    }
-
-
-    private void geraConexoesDOT(Node n) {
-        Map<String, Integer> connectionCount = new HashMap<>();
-        geraConexoesDOTRec(n, connectionCount);
-    }
-
-
-    private void geraConexoesDOTRec(Node n, Map<String, Integer> connectionCount) {
-        for (int i = 0; i < n.getSubtreesSize(); i++) {
-            Node aux = n.getSubtree(i);
-            String connectionKey = "node" + n.element + " -> " + "node" + aux.element + ";";
-
-
-            int count = connectionCount.getOrDefault(connectionKey, 0) + 1;
-            connectionCount.put(connectionKey, count);
-
-
-            // Adiciona um número à frente do elemento para evitar duplicatas
-            System.out.println(connectionKey.replace(";", count + ";"));
-
-
-            geraConexoesDOTRec(aux, connectionCount);
-        }
-    }
-   
-    // Gera uma saida no formato DOT
-    // Esta saida pode ser visualizada no GraphViz
-    // Versoes online do GraphViz pode ser encontradas em
-    // http://www.webgraphviz.com/
-    // http://viz-js.com/
-    // https://dreampuf.github.io/GraphvizOnline
-    public void geraDOT() {
-        if (root != null) {
-            System.out.println("digraph g { \n");
-            // node [style=filled];
-
-
-            geraNodosDOT(root);
-
-
-            geraConexoesDOT(root);
-            System.out.println("}\n");
-        }
     }    
 }

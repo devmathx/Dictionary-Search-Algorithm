@@ -1,43 +1,63 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class App {
 
-  private static Scanner kb = new Scanner(System.in);
+  private static Scanner kb = new Scanner(System.in); //Scanner para input
+  private static LinkedList<Palavra> words;  //lista de palavras lidas na árvore de acordo com pequisa
+  private static GeneralTree tree = new GeneralTree();  //ávore genérica
 
   /**
    * Inicia o sistema de busca em dicionário.
    */
   public static void execute() {
-    System.out.println("----- Dicionário -----");
+    LinkedList<Palavra> dicionario = Dictionary.readCSV(); //lendo CSV e adiccionando em dicinario
+    tree.setRoot('0'); //setar um root como 0
+    for(int i = 0; i < dicionario.size(); i++) {
+      tree.addWord(dicionario.get(i)); //Preenchendo a árvore com as palavras
+    }
+    
 
-    String text, word, context = "";
-    boolean finalize = false;
 
-    do {
+    menu();
+  }
+
+  /**
+   * Execução do menu principal com looping em recursão
+   */
+  private static void menu(){
+      String text;
+      Palavra word;
+      boolean finalize = false;
+
+      System.out.println("\n----- Dicionário -----");
       text = input("Pesquisar: ");
-      ArrayList<String> words = search(text);
+      words = search(text);
 
-      word = chooseWord(text, words);
+      word = chooseWord(text);
+
       if (word == null) {
-        word = chooseWord(text, words);
+        System.out.println("Não há resultados para essa palavra.\n");
+      }
+      else{
+        System.out.println("Significado de " + word.getPalavra() + ": " + word.getSignificado() + "\n");
       }
 
-      context = getContext(word);
-      if (context != null) {
-        finalize = true;
-      } else {
-        System.out.println("Não há resultados para essa palavra, digite novamente.\n");
+      String verify = input("Deseja pesquisar outra palavra? (0 - NÃO | 1 - SIM)  >> ");
+      switch(verify){
+        case "1": menu(); break;
+        case "0": return;
+        default: System.out.println("Opção inválida...");
       }
 
-    } while (!finalize);
-
-    System.out.println("Significado de " + word + ": " + context);
+      System.out.println("\nPrograma encerrado...");
+      return;
   }
 
   /**
    * Pega uma entrada de texto pelo terminal.
-   * @param question Questão refente ao que está sendo requsitado
+   * @param question Questão refente ao que está sendo requisitado
    * @return Resposta
    */
   private static String input(String question) {
@@ -52,56 +72,42 @@ public class App {
    * @param query Texto pesquisado
    * @return Lista de palavras que contem o trecho  
    */
-  private static ArrayList<String> search(String query) {
-    ArrayList<String> words = new ArrayList<>();
-
-    // Busca na arvore!
-
-    // Exemplos de teste
-    words.add("Teste 2");
-    words.add("Teste 1");
-    words.add("Alarido");
-
-    return words;
+  private static LinkedList<Palavra> search(String query) {
+    query = query.trim();
+    LinkedList<Palavra> response = tree.getWords(query);
+   
+    return response;
   }
 
   /**
    * Exibe no terminal as palavras correspondentes para o ususário escolher.
    * @param query Texto pesquisado
-   * @param words Lista de palavras
    * @return A palavra selecionada
    */
-  private static String chooseWord(String query, ArrayList<String> words) {
+  private static Palavra chooseWord(String query) {
+    String wordIndex;
     System.out.println("\nResultados para '" + query + "':");
 
     int index = 0;
-    for (String word : words) {
-      System.out.println(index + " = " + word);
+    for (Palavra word : words) {
+      System.out.println(index + " = " + word.getPalavra());
       index++;
     }
 
-    String wordIndex = input("Buscar significado de: ");
-    if (Integer.parseInt(wordIndex) > index) {
-      System.out.println("Indice inválido");
+    if(words.size() > 0 && words != null){
+        wordIndex = input("Buscar significado de: ");
+        if (Integer.parseInt(wordIndex) > index) {
+          System.out.println("Indice inválido");
+          return null;
+        }
+    }
+    else{
       return null;
     }
 
-    String selectedWord = words.get(Integer.parseInt(wordIndex));
+    Palavra selectedWord = words.get(Integer.parseInt(wordIndex));
     return selectedWord;
   }
 
-  /**
-   * Pega o signicado de uma palavra.
-   * @param word Palavra para verificar
-   * @return Signicado, ou {@code null} se a palavra não possuir
-   */
-  private static String getContext(String word) {
-    String[] contexts = Dictionary.findContexts(word);
-
-    if (contexts == null) {
-      return null;
-    }
-
-    return contexts[0];
-  }
+  
 }
